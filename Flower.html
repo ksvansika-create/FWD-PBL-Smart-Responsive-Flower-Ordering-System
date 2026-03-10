@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Flower. — Where Blooms Meet Emotions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+:root{
+  --pink:#e8437f;--pink2:#f472a8;--rose:#ff8fab;
+  --blush:#ffd6e7;--cream:#fff5f8;--deep:#2d1b25;
+  --text:#3a2030;--muted:#9e7a8a;
+  --shadow:0 20px 60px rgba(232,67,127,0.15);
+  --shadow2:0 8px 32px rgba(232,67,127,0.12);
+  --ff:'DM Sans',sans-serif;--fi:'Playfair Display',serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--ff);background:var(--cream);color:var(--text);overflow-x:hidden}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--ff)}
+input,textarea{font-family:var(--ff)}
+::selection{background:var(--blush);color:var(--pink)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--pink2);border-radius:4px}
+
+/* PETALS */
+.petal-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.petal{position:absolute;opacity:0;animation:petalFall linear infinite}
+@keyframes petalFall{0%{opacity:0;transform:translateY(-40px) rotate(0deg)}10%{opacity:0.5}90%{opacity:0.3}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);animation:orbFloat ease-in-out infinite}
+.orb1{width:500px;height:500px;background:rgba(244,114,168,0.12);top:-100px;right:-100px;animation-duration:14s}
+.orb2{width:400px;height:400px;background:rgba(255,143,171,0.10);bottom:-80px;left:-80px;animation-duration:18s;animation-delay:-6s}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-40px)}}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,245,248,0.9);backdrop-filter:blur(20px);padding:0 6%;height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(232,67,127,0.08);box-shadow:0 2px 30px rgba(232,67,127,0.06)}
+.logo{font-family:var(--fi);font-size:1.9rem;font-weight:900;color:var(--deep);cursor:pointer}
+.logo span{color:var(--pink)}
+nav{display:flex;align-items:center;gap:0.2rem}
+nav a{padding:8px 16px;border-radius:100px;font-size:0.92rem;font-weight:500;color:var(--muted);transition:all 0.25s;cursor:pointer}
+nav a:hover,nav a.active{color:var(--pink);background:rgba(232,67,127,0.08)}
+#headerActions{display:flex;align-items:center;gap:10px}
+#menu-btn{display:none;font-size:1.4rem;color:var(--deep);background:none;border:none;padding:4px}
+
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:72px;position:relative;z-index:1}
+.page.active{display:block}
+
+/* HERO */
+.hero{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 6%;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(232,67,127,0.08);border:1px solid rgba(232,67,127,0.2);padding:6px 18px;border-radius:100px;font-size:0.82rem;font-weight:600;color:var(--pink);margin-bottom:28px;animation:fadeUp 0.8s var(--ease) both}
+.hero h1{font-family:var(--fi);font-size:clamp(3rem,7vw,6rem);font-weight:900;line-height:1.05;color:var(--deep);margin-bottom:24px;animation:fadeUp 0.8s var(--ease) 0.1s both}
+.hero h1 em{color:var(--pink);font-style:italic}
+.hero p{font-size:1.15rem;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.8;animation:fadeUp 0.8s var(--ease) 0.2s both}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.8s var(--ease) 0.3s both}
+.hero-floats{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hf{position:absolute;font-size:2.5rem;opacity:0.15;animation:hfloat ease-in-out infinite}
+@keyframes hfloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(15deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+.section-label{font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pink);margin-bottom:10px}
+.section-title{font-family:var(--fi);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--deep);margin-bottom:50px}
+.section-title em{color:var(--pink);font-style:italic}
+.preview-section{padding:80px 6%;position:relative;z-index:1}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px}
+.preview-card{border-radius:28px;overflow:hidden;background:#fff;box-shadow:var(--shadow2);transition:transform 0.4s var(--ease),box-shadow 0.4s;cursor:pointer}
+.preview-card:hover{transform:translateY(-12px);box-shadow:var(--shadow)}
+.preview-card img{width:100%;height:260px;object-fit:cover;transition:transform 0.6s var(--ease)}
+.preview-card:hover img{transform:scale(1.05)}
+.preview-card-body{padding:22px 24px}
+.preview-card-body h3{font-family:var(--fi);font-size:1.25rem;font-weight:700;color:var(--deep);margin-bottom:6px}
+.preview-card-body p{font-size:0.9rem;color:var(--muted)}
+.preview-card-price{font-family:var(--fi);font-size:1.1rem;font-weight:700;color:var(--pink);margin-top:8px}
+.divider{text-align:center;padding:20px;font-size:1.4rem;letter-spacing:12px;color:rgba(232,67,127,0.25);position:relative;z-index:1}
+
+/* PRODUCTS */
+.products-hero{padding:60px 6% 40px;text-align:center;position:relative;z-index:1}
+.products-grid{padding:0 6% 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:28px;position:relative;z-index:1}
+.product-card{background:#fff;border-radius:28px;overflow:hidden;box-shadow:var(--shadow2);transition:transform 0.4s var(--ease),box-shadow 0.4s;cursor:pointer;position:relative}
+.product-card:hover{transform:translateY(-10px);box-shadow:var(--shadow)}
+.product-card-img{position:relative;overflow:hidden;height:240px}
+.product-card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s var(--ease)}
+.product-card:hover .product-card-img img{transform:scale(1.08)}
+.owner-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity 0.2s;z-index:2}
+.product-card:hover .owner-actions{opacity:1}
+.owner-btn{background:rgba(255,255,255,0.95);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s}
+.owner-btn.del{color:#e74c3c}
+.owner-btn.del:hover{background:#e74c3c;color:#fff;transform:scale(1.1)}
+.owner-btn.edit{color:var(--pink)}
+.owner-btn.edit:hover{background:var(--pink);color:#fff;transform:scale(1.1)}
+.product-card-body{padding:20px 22px 24px}
+.product-tag{font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--pink);margin-bottom:6px}
+.product-card-body h3{font-family:var(--fi);font-size:1.2rem;font-weight:700;color:var(--deep);margin-bottom:8px}
+.product-card-body p{font-size:0.88rem;color:var(--muted);line-height:1.6;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.seller-name{font-size:0.78rem;color:var(--muted);margin-bottom:14px}
+.seller-name i{color:var(--pink)}
+.product-footer{display:flex;align-items:center;justify-content:space-between}
+.product-price{font-family:var(--fi);font-size:1.4rem;font-weight:700;color:var(--pink)}
+.buy-btn{background:linear-gradient(135deg,var(--pink),var(--pink2));color:#fff;border:none;padding:10px 20px;border-radius:100px;font-size:0.85rem;font-weight:600;transition:all 0.3s var(--ease);box-shadow:0 4px 16px rgba(232,67,127,0.3)}
+.buy-btn:hover{transform:scale(1.05);box-shadow:0 6px 24px rgba(232,67,127,0.5)}
+.buy-btn.locked{background:linear-gradient(135deg,#c4a0b0,#b89aab);box-shadow:none}
+.buy-btn.locked:hover{transform:none;box-shadow:none}
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px}
+.empty-state span{font-size:4rem;display:block;margin-bottom:16px}
+.empty-state h3{font-family:var(--fi);font-size:1.5rem;color:var(--deep);margin-bottom:8px}
+.empty-state p{color:var(--muted)}
+
+/* ABOUT */
+.about-hero{padding:70px 6% 50px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+.about-hero-text h1{font-family:var(--fi);font-size:clamp(2.5rem,5vw,4rem);font-weight:900;color:var(--deep);line-height:1.1;margin-bottom:24px}
+.about-hero-text h1 em{color:var(--pink);font-style:italic}
+.about-hero-text p{font-size:1.05rem;color:var(--muted);line-height:1.85;margin-bottom:20px}
+.about-deco{border-radius:32px;overflow:hidden;box-shadow:var(--shadow);height:420px;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:8rem}
+.about-features{padding:60px 6%;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;position:relative;z-index:1}
+.feature-card{background:#fff;border-radius:24px;padding:36px 28px;box-shadow:var(--shadow2);text-align:center;transition:transform 0.3s var(--ease)}
+.feature-card:hover{transform:translateY(-8px)}
+.feature-icon{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--blush),rgba(244,114,168,0.2));display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 20px}
+.feature-card h3{font-family:var(--fi);font-size:1.2rem;font-weight:700;color:var(--deep);margin-bottom:10px}
+.feature-card p{font-size:0.9rem;color:var(--muted);line-height:1.7}
+.about-cta{margin:0 4% 60px;padding:80px 6%;text-align:center;background:linear-gradient(135deg,rgba(232,67,127,0.05),rgba(255,143,171,0.08));border-radius:36px;border:1px solid rgba(232,67,127,0.1);position:relative;z-index:1}
+.about-cta h2{font-family:var(--fi);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--deep);margin-bottom:16px}
+.about-cta h2 em{color:var(--pink);font-style:italic}
+.about-cta p{color:var(--muted);margin-bottom:32px}
+
+/* REVIEWS */
+.reviews-hero{padding:70px 6% 50px;text-align:center;position:relative;z-index:1}
+.reviews-grid{padding:0 6% 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;position:relative;z-index:1}
+.review-card{background:#fff;border-radius:24px;padding:32px;box-shadow:var(--shadow2);border:1px solid rgba(232,67,127,0.06);transition:transform 0.3s;position:relative;overflow:hidden}
+.review-card::before{content:'"';position:absolute;top:-10px;left:20px;font-family:var(--fi);font-size:8rem;color:var(--blush);line-height:1;pointer-events:none}
+.review-card:hover{transform:translateY(-6px)}
+.stars{color:var(--pink);font-size:1.1rem;margin-bottom:14px;position:relative;z-index:1}
+.review-card p{font-size:0.95rem;color:var(--text);line-height:1.75;margin-bottom:20px;position:relative;z-index:1}
+.reviewer{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.reviewer-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--pink)}
+.reviewer-name{font-weight:600;font-size:0.9rem;color:var(--deep)}
+.reviewer-date{font-size:0.8rem;color:var(--muted)}
+
+/* CONTACT */
+.contact-wrap{padding:70px 6% 80px;display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:start;position:relative;z-index:1}
+.contact-info h1{font-family:var(--fi);font-size:clamp(2.2rem,4vw,3.2rem);font-weight:900;color:var(--deep);margin-bottom:16px}
+.contact-info h1 em{color:var(--pink);font-style:italic}
+.contact-info p{font-size:1rem;color:var(--muted);line-height:1.8;margin-bottom:36px}
+.contact-item{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.contact-item-icon{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--blush),rgba(244,114,168,0.2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--pink);flex-shrink:0}
+.contact-item-text strong{font-weight:600;font-size:0.9rem;color:var(--deep);display:block}
+.contact-item-text span{font-size:0.88rem;color:var(--muted)}
+.contact-form-card{background:#fff;border-radius:32px;padding:44px;box-shadow:var(--shadow)}
+
+/* PAYMENT */
+.payment-wrap{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:60px 6%;position:relative;z-index:1}
+.payment-card{background:#fff;border-radius:36px;padding:60px 52px;box-shadow:var(--shadow);max-width:520px;width:100%;text-align:center}
+.amount-display{background:linear-gradient(135deg,var(--blush),rgba(255,143,171,0.2));border-radius:20px;padding:20px;margin-bottom:28px}
+.amount-label{font-size:0.85rem;color:var(--muted);margin-bottom:4px}
+.amount-val{font-family:var(--fi);font-size:2.5rem;font-weight:900;color:var(--pink)}
+.methods{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.method-item{display:flex;align-items:center;gap:16px;background:var(--cream);border:1.5px solid rgba(232,67,127,0.1);border-radius:16px;padding:16px 20px;cursor:pointer;transition:all 0.25s;font-size:0.95rem;font-weight:500;color:var(--deep)}
+.method-item:hover,.method-item.selected{border-color:var(--pink);background:rgba(232,67,127,0.05)}
+.method-item i{color:var(--pink);width:22px}
+.ssl-badge{font-size:0.78rem;color:#27ae60;font-weight:600;margin-top:16px}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.fg label{font-size:0.85rem;font-weight:600;color:var(--deep)}
+.fg input,.fg textarea{background:var(--cream);border:1.5px solid rgba(232,67,127,0.15);color:var(--text);padding:13px 16px;border-radius:14px;font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%}
+.fg input:focus,.fg textarea:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(232,67,127,0.1)}
+.fg textarea{resize:vertical;min-height:120px}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--muted)}
+.msg{padding:12px 16px;border-radius:12px;font-size:0.88rem;font-weight:500;margin-bottom:16px;display:none}
+.msg.error{background:rgba(231,76,60,0.08);color:#c0392b;border:1px solid rgba(231,76,60,0.2)}
+.msg.success{background:rgba(39,174,96,0.08);color:#1e8449;border:1px solid rgba(39,174,96,0.2)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:100px;background:linear-gradient(135deg,var(--pink),var(--pink2));color:#fff;font-weight:600;font-size:0.95rem;border:none;box-shadow:0 6px 24px rgba(232,67,127,0.35);transition:all 0.3s var(--ease);cursor:pointer}
+.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 36px rgba(232,67,127,0.5)}
+.btn:active{transform:scale(0.98)}
+.btn-outline{background:transparent;color:var(--pink);border:2px solid var(--pink);box-shadow:none}
+.btn-outline:hover{background:var(--pink);color:#fff;box-shadow:0 6px 24px rgba(232,67,127,0.3)}
+.btn-full{width:100%;justify-content:center}
+.btn-sm{padding:10px 22px;font-size:0.88rem}
+
+/* MODALS — overlay scrolls, short modals stay centered, tall ones scroll naturally */
+.modal-overlay{position:fixed;inset:0;background:rgba(45,27,37,0.6);backdrop-filter:blur(8px);z-index:9000;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-overlay.open{display:block}
+.modal-center{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.modal-wrap{position:relative;width:100%;max-width:620px}
+.modal{background:#fff;border-radius:32px;width:100%;box-shadow:0 40px 100px rgba(45,27,37,0.3);overflow:hidden;animation:modalIn 0.4s var(--ease)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.94) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-img{width:100%;height:280px;object-fit:cover}
+.modal-body{padding:32px}
+.modal-tag{font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
+.modal-body h2{font-family:var(--fi);font-size:1.8rem;font-weight:700;color:var(--deep);margin-bottom:12px}
+.modal-body p{font-size:0.95rem;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px}
+.modal-price{font-family:var(--fi);font-size:2rem;font-weight:900;color:var(--pink)}
+.modal-actions{display:flex;gap:10px}
+.modal-close-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.95);border:none;width:36px;height:36px;border-radius:50%;font-size:1rem;color:var(--deep);display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:10;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.modal-close-btn:hover{background:var(--pink);color:#fff}
+
+/* AUTH TABS */
+.auth-tab-bar{display:flex;background:var(--cream);border-radius:14px;padding:5px;gap:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:10px;border-radius:10px;border:none;font-family:var(--ff);font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--muted);background:transparent}
+.auth-tab.active{background:var(--pink);color:#fff}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed rgba(232,67,127,0.3);border-radius:20px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--cream);margin-bottom:20px;position:relative;overflow:hidden}
+.upload-zone:hover{border-color:var(--pink);background:rgba(232,67,127,0.03)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;width:100%;height:100%}
+.upload-zone .uicon{font-size:2.5rem;margin-bottom:10px;display:block}
+.upload-zone p{font-size:0.9rem;color:var(--muted)}
+.upload-zone strong{color:var(--pink)}
+.upload-preview{width:100%;height:160px;object-fit:cover;border-radius:14px;display:none;margin-bottom:10px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:28px;right:28px;z-index:99999;display:flex;flex-direction:column;gap:10px}
+.toast{background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 8px 32px rgba(45,27,37,0.15);display:flex;align-items:center;gap:12px;font-size:0.9rem;font-weight:500;color:var(--deep);border-left:4px solid var(--pink);animation:toastIn 0.4s var(--ease);min-width:240px}
+.toast.terror{border-color:#e74c3c}
+.toast.tsuccess{border-color:#27ae60}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+
+/* FOOTER */
+footer{background:var(--deep);color:rgba(255,255,255,0.6);padding:48px 6% 32px;text-align:center;position:relative;z-index:1}
+.footer-logo{font-family:var(--fi);font-size:2rem;font-weight:900;color:#fff;margin-bottom:12px;display:block}
+.footer-logo span{color:var(--rose)}
+footer p{font-size:0.88rem;margin-bottom:6px}
+.footer-links{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.footer-links a{color:rgba(255,255,255,0.5);font-size:0.88rem;cursor:pointer;transition:color 0.2s}
+.footer-links a:hover{color:var(--rose)}
+
+/* RESPONSIVE */
+@media(max-width:860px){
+  nav{display:none;position:fixed;top:72px;left:0;right:0;flex-direction:column;background:#fff;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1);gap:4px}
+  nav.open{display:flex}
+  #menu-btn{display:block}
+  .about-hero{grid-template-columns:1fr}
+  .about-deco{display:none}
+  .contact-wrap{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .hero h1{font-size:2.5rem}
+  .hero-btns{flex-direction:column;align-items:center}
+  .products-grid{grid-template-columns:1fr}
+  .payment-card{padding:36px 24px}
+  .contact-form-card{padding:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="petal-bg" id="petalBg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="goPage(null,'home')">Flower<span>.</span></div>
+  <nav id="navbar">
+    <a class="active" onclick="goPage(this,'home')">Home</a>
+    <a onclick="goPage(this,'products')">Products</a>
+    <a onclick="goPage(this,'about')">About</a>
+    <a onclick="goPage(this,'reviews')">Reviews</a>
+    <a onclick="goPage(this,'contact')">Contact</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div id="headerActions"></div>
+    <button id="menu-btn" onclick="document.getElementById('navbar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+  </div>
+</header>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-floats">
+      <span class="hf" style="top:10%;left:5%;animation-duration:6s">🌸</span>
+      <span class="hf" style="top:20%;right:8%;animation-duration:8s;animation-delay:-2s">🌺</span>
+      <span class="hf" style="bottom:25%;left:10%;animation-duration:7s;animation-delay:-3s">🌼</span>
+      <span class="hf" style="bottom:30%;right:12%;animation-duration:9s;animation-delay:-5s">🌷</span>
+      <span class="hf" style="top:15%;left:45%;animation-duration:11s;animation-delay:-4s">🌹</span>
+    </div>
+    <div>
+      <div class="hero-badge">🌸 Fresh · Premium · Handpicked</div>
+      <h1>Where Flowers Meet<br><em>Emotions</em> 💐</h1>
+      <p>Elegant bouquets crafted to turn ordinary days into unforgettable memories.</p>
+      <div class="hero-btns">
+        <button class="btn" onclick="goPage(null,'products')"><i class="fas fa-shopping-bag"></i> Explore Collection</button>
+        <button class="btn btn-outline" onclick="goPage(null,'about')">Our Story</button>
+      </div>
+    </div>
+  </section>
+  <div class="divider">✦ ✿ ✦ ✿ ✦</div>
+  <section class="preview-section">
+    <div class="section-label">Trending Now</div>
+    <div class="section-title">Most Loved <em>Bouquets</em></div>
+    <div class="preview-grid" id="homePreview"></div>
+  </section>
+  <div class="divider">✦ ✿ ✦ ✿ ✦</div>
+  <section style="padding:60px 6%;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;position:relative;z-index:1">
+    <div style="text-align:center;padding:32px 24px;background:#fff;border-radius:24px;box-shadow:var(--shadow2)"><div style="font-size:2.5rem;margin-bottom:12px">🚚</div><strong style="display:block;font-family:var(--fi);font-size:1.1rem;color:var(--deep);margin-bottom:6px">Same Day Delivery</strong><p style="font-size:0.85rem;color:var(--muted)">Fresh to your door within hours</p></div>
+    <div style="text-align:center;padding:32px 24px;background:#fff;border-radius:24px;box-shadow:var(--shadow2)"><div style="font-size:2.5rem;margin-bottom:12px">🌷</div><strong style="display:block;font-family:var(--fi);font-size:1.1rem;color:var(--deep);margin-bottom:6px">100% Fresh Blooms</strong><p style="font-size:0.85rem;color:var(--muted)">Hand-selected every morning</p></div>
+    <div style="text-align:center;padding:32px 24px;background:#fff;border-radius:24px;box-shadow:var(--shadow2)"><div style="font-size:2.5rem;margin-bottom:12px">🎁</div><strong style="display:block;font-family:var(--fi);font-size:1.1rem;color:var(--deep);margin-bottom:6px">Gift Wrapping</strong><p style="font-size:0.85rem;color:var(--muted)">Beautiful packaging included</p></div>
+    <div style="text-align:center;padding:32px 24px;background:#fff;border-radius:24px;box-shadow:var(--shadow2)"><div style="font-size:2.5rem;margin-bottom:12px">💌</div><strong style="display:block;font-family:var(--fi);font-size:1.1rem;color:var(--deep);margin-bottom:6px">Personal Message</strong><p style="font-size:0.85rem;color:var(--muted)">Add a heartfelt note</p></div>
+  </section>
+  <footer>
+    <span class="footer-logo">Flower<span>.</span></span>
+    <p>Making every moment bloom with love 🌸</p>
+    <div class="footer-links">
+      <a onclick="goPage(null,'home')">Home</a>
+      <a onclick="goPage(null,'products')">Products</a>
+      <a onclick="goPage(null,'about')">About</a>
+      <a onclick="goPage(null,'contact')">Contact</a>
+    </div>
+    <p style="font-size:0.8rem;margin-top:8px">© 2025 Flower. All rights reserved.</p>
+  </footer>
+</div>
+
+<!-- PRODUCTS PAGE -->
+<div id="page-products" class="page">
+  <section class="products-hero">
+    <div class="section-label">Our Collection</div>
+    <div class="section-title" style="margin-bottom:8px">Fresh <em>Blooms</em> for Every Occasion</div>
+    <p style="color:var(--muted);font-size:1rem;max-width:500px;margin:0 auto 20px">Each bouquet is hand-crafted with love, ready to make someone smile.</p>
+    <div id="sellHeaderBtn" style="display:none"><button class="btn btn-sm" onclick="openSellModal()"><i class="fas fa-plus"></i> List Your Flower</button></div>
+  </section>
+  <div class="products-grid" id="productsGrid"></div>
+  <footer><span class="footer-logo">Flower<span>.</span></span><p>© 2025 Flower. All rights reserved.</p></footer>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="page-about" class="page">
+  <section class="about-hero">
+    <div class="about-hero-text">
+      <div class="section-label">Our Story</div>
+      <h1>Born from a Love of <em>Flowers</em> 🌸</h1>
+      <p>At Flower., we believe every bloom carries an emotion. Our mission is to help you express love, joy, and celebration through the timeless beauty of flowers.</p>
+      <p>Started as a small dream, we grew into a marketplace where flower lovers can buy and sell beautiful arrangements.</p>
+      <button class="btn" style="margin-top:12px" onclick="goPage(null,'products')"><i class="fas fa-shopping-bag"></i> Shop Now</button>
+    </div>
+    <div class="about-deco">🌸🌺🌼</div>
+  </section>
+  <div class="divider">✦ ✿ ✦ ✿ ✦</div>
+  <section class="about-features">
+    <div class="feature-card"><div class="feature-icon">🚚</div><h3>Fast Delivery</h3><p>Same-day delivery available. Fresh and on time, every time.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌷</div><h3>Premium Freshness</h3><p>Every stem hand-selected each morning for peak freshness.</p></div>
+    <div class="feature-card"><div class="feature-icon">🎁</div><h3>Perfect for Gifting</h3><p>Beautiful packaging and personal message cards included.</p></div>
+    <div class="feature-card"><div class="feature-icon">💚</div><h3>Eco Friendly</h3><p>Sustainable sourcing and biodegradable packaging.</p></div>
+  </section>
+  <section class="about-cta">
+    <h2>Let Flowers Speak Your <em>Emotions</em> 🌷</h2>
+    <p>From birthdays to anniversaries, we have the perfect bloom for every story.</p>
+    <button class="btn" onclick="goPage(null,'products')">Explore Collection</button>
+  </section>
+  <footer><span class="footer-logo">Flower<span>.</span></span><p>© 2025 Flower. All rights reserved.</p></footer>
+</div>
+
+<!-- REVIEWS PAGE -->
+<div id="page-reviews" class="page">
+  <section class="reviews-hero">
+    <div class="section-label">Testimonials</div>
+    <div class="section-title" style="margin-bottom:12px">What Our Customers <em>Say</em> 💬</div>
+    <p style="color:var(--muted);max-width:460px;margin:0 auto">Real love from real people who chose to say it with flowers.</p>
+  </section>
+  <div class="reviews-grid">
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"The flowers were absolutely stunning and super fresh. The packaging was so beautiful!"</p><div class="reviewer"><div class="reviewer-av">A</div><div><div class="reviewer-name">Ananya Sharma</div><div class="reviewer-date">2 days ago</div></div></div></div>
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"On-time delivery and the quality blew me away. My wife cried happy tears!"</p><div class="reviewer"><div class="reviewer-av">R</div><div><div class="reviewer-name">Rahul Mehta</div><div class="reviewer-date">1 week ago</div></div></div></div>
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"Made my anniversary incredibly special. The roses lasted over two weeks!"</p><div class="reviewer"><div class="reviewer-av">S</div><div><div class="reviewer-name">Sneha Patel</div><div class="reviewer-date">2 weeks ago</div></div></div></div>
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"Ordered for my mom's birthday and she was over the moon. Absolutely gorgeous!"</p><div class="reviewer"><div class="reviewer-av">P</div><div><div class="reviewer-name">Priya Singh</div><div class="reviewer-date">3 weeks ago</div></div></div></div>
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"Fast delivery, gorgeous blooms, and the handwritten card was such a lovely touch!"</p><div class="reviewer"><div class="reviewer-av">K</div><div><div class="reviewer-name">Kavya Nair</div><div class="reviewer-date">1 month ago</div></div></div></div>
+    <div class="review-card"><div class="stars">⭐⭐⭐⭐⭐</div><p>"Best flower shop online. The lilies smelled incredible and looked so elegant."</p><div class="reviewer"><div class="reviewer-av">M</div><div><div class="reviewer-name">Meera Krishnan</div><div class="reviewer-date">1 month ago</div></div></div></div>
+  </div>
+  <footer><span class="footer-logo">Flower<span>.</span></span><p>© 2025 Flower. All rights reserved.</p></footer>
+</div>
+
+<!-- CONTACT PAGE -->
+<div id="page-contact" class="page">
+  <div class="contact-wrap">
+    <div class="contact-info">
+      <div class="section-label">Get in Touch</div>
+      <h1>We'd Love to <em>Hear</em> from You 🌺</h1>
+      <p>Have a question or a special request? We're always here for you.</p>
+      <div class="contact-item"><div class="contact-item-icon"><i class="fas fa-envelope"></i></div><div class="contact-item-text"><strong>Email Us</strong><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef878a838380af898380988a9dc18c8082">[email&#160;protected]</a></span></div></div>
+      <div class="contact-item"><div class="contact-item-icon"><i class="fas fa-phone"></i></div><div class="contact-item-text"><strong>Call Us</strong><span>+91 98765 43210</span></div></div>
+      <div class="contact-item"><div class="contact-item-icon"><i class="fas fa-map-marker-alt"></i></div><div class="contact-item-text"><strong>Find Us</strong><span>12 Blossom Lane, Mumbai</span></div></div>
+    </div>
+    <div class="contact-form-card">
+      <h3 style="font-family:var(--fi);font-size:1.5rem;font-weight:700;color:var(--deep);margin-bottom:24px">Send a Message 💌</h3>
+      <div class="msg" id="contactMsg"></div>
+      <div class="fg"><label>Your Name</label><input type="text" id="cName" placeholder="e.g. Ananya Sharma"/></div>
+      <div class="fg"><label>Email</label><input type="email" id="cEmail" placeholder="you@example.com"/></div>
+      <div class="fg"><label>Subject</label><input type="text" id="cSubject" placeholder="What's it about?"/></div>
+      <div class="fg"><label>Message</label><textarea id="cMessage" placeholder="Tell us anything..."></textarea></div>
+      <button class="btn btn-full" onclick="handleContact()"><i class="fas fa-paper-plane"></i> Send Message</button>
+    </div>
+  </div>
+  <footer><span class="footer-logo">Flower<span>.</span></span><p>© 2025 Flower. All rights reserved.</p></footer>
+</div>
+
+<!-- PAYMENT PAGE -->
+<div id="page-payment" class="page">
+  <div class="payment-wrap">
+    <div class="payment-card">
+      <div style="font-size:3rem;margin-bottom:12px">🛡️</div>
+      <h2 style="font-family:var(--fi);font-size:2rem;font-weight:700;color:var(--deep);margin-bottom:6px">Secure Checkout</h2>
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:24px">One step away from making someone smile 🌸</p>
+      <div class="amount-display"><div class="amount-label">Total Amount</div><div class="amount-val" id="payAmount">₹499</div></div>
+      <div class="methods">
+        <div class="method-item" onclick="selectMethod(this)"><i class="fas fa-mobile-screen"></i><span>UPI (GPay, PhonePe, Paytm)</span></div>
+        <div class="method-item" onclick="selectMethod(this)"><i class="fas fa-credit-card"></i><span>Debit / Credit Card</span></div>
+        <div class="method-item" onclick="selectMethod(this)"><i class="fas fa-truck-fast"></i><span>Cash on Delivery</span></div>
+      </div>
+      <button class="btn btn-full" id="payBtn" onclick="handlePayment()"><i class="fas fa-lock"></i> Confirm & Pay Now</button>
+      <div class="ssl-badge">⚡ Secure SSL Encrypted Payment</div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal" onclick="if(event.target===this||event.target.classList.contains('modal-center'))closeAuth()">
+  <div class="modal-center">
+    <div class="modal-wrap" style="max-width:460px">
+      <button class="modal-close-btn" onclick="closeAuth()">✕</button>
+      <div class="modal">
+        <div style="padding:36px 40px 40px">
+          <div class="auth-tab-bar">
+            <button class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('login')">Sign In</button>
+            <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+          </div>
+          <div id="formLogin">
+            <div style="text-align:center;margin-bottom:24px">
+              <div style="font-size:2.5rem">🌸</div>
+              <h3 style="font-family:var(--fi);font-size:1.6rem;font-weight:700;color:var(--deep);margin:8px 0 4px">Welcome back</h3>
+              <p style="font-size:0.88rem;color:var(--muted)">Sign in to buy or sell flowers</p>
+            </div>
+            <div class="msg" id="errLogin"></div>
+            <div class="fg"><label>Email</label><input type="email" id="liEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+            <div class="fg"><label>Password</label><input type="password" id="liPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+            <button class="btn btn-full" id="btnLogin" onclick="doLogin()" style="margin-top:4px"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+            <p style="text-align:center;font-size:0.85rem;color:var(--muted);margin-top:16px">No account? <a href="#" onclick="switchAuthTab('register');return false" style="color:var(--pink);font-weight:600">Create one free →</a></p>
+          </div>
+          <div id="formRegister" style="display:none">
+            <div style="text-align:center;margin-bottom:24px">
+              <div style="font-size:2.5rem">🌺</div>
+              <h3 style="font-family:var(--fi);font-size:1.6rem;font-weight:700;color:var(--deep);margin:8px 0 4px">Join Flower.</h3>
+              <p style="font-size:0.88rem;color:var(--muted)">Buy blooms or sell your own arrangements</p>
+            </div>
+            <div class="msg" id="errRegister"></div>
+            <div class="fg"><label>Your Name</label><input type="text" id="regName" placeholder="e.g. Ananya Sharma" onkeydown="if(event.key==='Enter')doRegister()"/></div>
+            <div class="fg"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doRegister()"/></div>
+            <div class="fg"><label>Password <span style="color:var(--muted);font-weight:400">(min 6 chars)</span></label><input type="password" id="regPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()"/></div>
+            <button class="btn btn-full" id="btnRegister" onclick="doRegister()" style="margin-top:4px"><i class="fas fa-user-plus"></i> Create Account</button>
+            <p style="text-align:center;font-size:0.85rem;color:var(--muted);margin-top:16px">Already have an account? <a href="#" onclick="switchAuthTab('login');return false" style="color:var(--pink);font-weight:600">Sign in →</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SELL / EDIT MODAL -->
+<div class="modal-overlay" id="sellModal" onclick="if(event.target===this||event.target.classList.contains('modal-center'))closeSellModal()">
+  <div class="modal-center">
+    <div class="modal-wrap" style="max-width:500px">
+      <button class="modal-close-btn" onclick="closeSellModal()">✕</button>
+      <div class="modal">
+        <div style="padding:36px">
+          <h2 style="font-family:var(--fi);font-size:1.7rem;font-weight:700;color:var(--deep);margin-bottom:6px" id="sellModalTitle">List a Flower 🌸</h2>
+          <p style="font-size:0.88rem;color:var(--muted);margin-bottom:24px">Upload your arrangement and start selling</p>
+          <div class="msg" id="errSell"></div>
+          <div class="upload-zone">
+            <input type="file" accept="image/*" id="sellImg" onchange="previewSellImg(this)"/>
+            <img id="sellImgPreview" class="upload-preview" alt=""/>
+            <span class="uicon" id="sellUpIcon">🌸</span>
+            <p id="sellUpText"><strong>Click to upload</strong> your flower image<br/><span style="font-size:0.8rem">JPG, PNG, WEBP · max 800KB</span></p>
+          </div>
+          <div class="fg"><label>Flower Title *</label><input type="text" id="sellName" placeholder="e.g. Pink Rose Bouquet"/></div>
+          <div class="fg"><label>Category</label><input type="text" id="sellCategory" placeholder="e.g. Bouquet, Basket, Wreath"/></div>
+          <div class="fg"><label>Price *</label><input type="text" id="sellPrice" placeholder="e.g. ₹499 or £9.95"/></div>
+          <div class="fg"><label>Description *</label><textarea id="sellDesc" placeholder="Describe your beautiful arrangement..."></textarea></div>
+          <button class="btn btn-full" id="btnSell" onclick="doSellProduct()">
+            <i class="fas fa-store"></i> <span id="btnSellText">List for Sale</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal-overlay" id="productModal" onclick="if(event.target===this||event.target.classList.contains('modal-center'))closeProductModal()">
+  <div class="modal-center">
+    <div class="modal-wrap">
+      <button class="modal-close-btn" onclick="closeProductModal()">✕</button>
+      <div class="modal">
+        <img id="modalImg" class="modal-img" src="" alt=""/>
+        <div class="modal-body">
+          <div class="modal-tag" id="modalTag"></div>
+          <h2 id="modalName"></h2>
+          <p id="modalDesc"></p>
+          <p style="font-size:0.82rem;color:var(--muted)"><i class="fas fa-store" style="color:var(--pink)"></i> Listed by <span id="modalSeller" style="font-weight:600;color:var(--deep)"></span></p>
+          <div class="modal-footer">
+            <div class="modal-price" id="modalPrice"></div>
+            <div class="modal-actions">
+              <button class="btn btn-outline btn-sm" onclick="closeProductModal()">Back</button>
+              <button class="btn btn-sm" id="modalBuyBtn" onclick="doBuy()"><i class="fas fa-shopping-bag"></i> Buy Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+
+<!-- Firebase Compat SDK — plain scripts, no modules, onclick works perfectly -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<!-- Storage not needed — images stored as base64 in Firestore -->
+
+<script>
+// ════════════════════════════════════════════════════
+// FIREBASE CONFIG — paste your project config here
+// ════════════════════════════════════════════════════
+var firebaseConfig = {
+apiKey: "AIzaSyDIEInGGT4t5GbJSJq2ZRRQtmT9t4EUlnw",
+    authDomain: "flowers-bc923.firebaseapp.com",
+    projectId: "flowers-bc923",
+    // storageBucket removed (Storage not enabled on free plan)
+    messagingSenderId: "127666725941",
+    appId: "1:127666725941:web:c139144705c69e4f9c3d7c",
+    measurementId: "G-F00ENYHG6N"
+};
+firebase.initializeApp(firebaseConfig);
+var auth    = firebase.auth();
+var db      = firebase.firestore();
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+var currentUser      = null;
+var allProducts      = [];
+var selectedProduct  = null;
+var editingProductId = null;
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg, type){
+  var el = document.createElement('div');
+  el.className = 'toast'+(type==='error'?' terror':type==='success'?' tsuccess':'');
+  el.innerHTML = '<span>'+(type==='success'?'✅':type==='error'?'❌':'🌸')+'</span><span>'+msg+'</span>';
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(function(){ el.style.animation='toastOut 0.3s ease forwards'; setTimeout(function(){ if(el.parentNode)el.remove(); },300); },3000);
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('navbar').classList.remove('open');
+}
+function goPage(el, id){
+  document.querySelectorAll('nav a').forEach(function(a){ a.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  showPage(id);
+}
+
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+function updateHeader(){
+  var el = document.getElementById('headerActions');
+  var sellWrap = document.getElementById('sellHeaderBtn');
+  if(currentUser){
+    var initials = (currentUser.displayName||currentUser.email).charAt(0).toUpperCase();
+    var name = currentUser.displayName || currentUser.email.split('@')[0];
+    el.innerHTML =
+      '<button class="btn btn-sm" onclick="openSellModal()" style="gap:6px"><i class="fas fa-plus"></i> Sell</button>'+
+      '<div style="display:flex;align-items:center;gap:8px;background:rgba(232,67,127,0.08);padding:7px 14px;border-radius:100px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--pink);font-size:0.8rem">'+esc(initials)+'</div>'+
+        '<span style="font-size:0.85rem;font-weight:600;color:var(--deep)">'+esc(name)+'</span>'+
+        '<button onclick="doLogout()" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0;font-size:0.85rem" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>'+
+      '</div>';
+    if(sellWrap) sellWrap.style.display='block';
+  } else {
+    el.innerHTML =
+      '<button class="btn btn-outline btn-sm" onclick="openAuth(\'login\')">Sign In</button>'+
+      '<button class="btn btn-sm" onclick="openAuth(\'register\')"><i class="fas fa-user-plus"></i> Join Free</button>';
+    if(sellWrap) sellWrap.style.display='none';
+  }
+}
+
+// ─── AUTH MODAL ───────────────────────────────────────────────────────────────
+function openAuth(tab){
+  switchAuthTab(tab||'login');
+  document.getElementById('authModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAuth(){
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function switchAuthTab(tab){
+  var isLogin=(tab==='login');
+  document.getElementById('formLogin').style.display    = isLogin?'block':'none';
+  document.getElementById('formRegister').style.display = isLogin?'none':'block';
+  document.getElementById('tabSignIn').classList.toggle('active',isLogin);
+  document.getElementById('tabRegister').classList.toggle('active',!isLogin);
+  document.getElementById('errLogin').style.display    = 'none';
+  document.getElementById('errRegister').style.display = 'none';
+}
+
+// ─── REGISTER ─────────────────────────────────────────────────────────────────
+function doRegister(){
+  var name  = document.getElementById('regName').value.trim();
+  var email = document.getElementById('regEmail').value.trim().toLowerCase();
+  var pass  = document.getElementById('regPass').value;
+  var errEl = document.getElementById('errRegister');
+  var btn   = document.getElementById('btnRegister');
+  errEl.style.display='none';
+  if(!name||!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.className='msg error'; errEl.style.display='block'; return; }
+  if(pass.length<6){ errEl.textContent='Password must be at least 6 characters.'; errEl.className='msg error'; errEl.style.display='block'; return; }
+  btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Creating...'; btn.disabled=true;
+
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(function(cred){
+      return cred.user.updateProfile({ displayName: name }).then(function(){ return cred.user; });
+    })
+    .then(function(user){
+      // Save extra profile to Firestore
+      return db.collection('users').doc(user.uid).set({ displayName: name, email: email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    })
+    .then(function(){
+      closeAuth();
+      document.getElementById('regName').value='';
+      document.getElementById('regEmail').value='';
+      document.getElementById('regPass').value='';
+      toast('Welcome to Flower., '+name+'! 🌸','success');
+    })
+    .catch(function(e){
+      var msg = e.code==='auth/email-already-in-use' ? 'This email is already registered.'
+              : e.code==='auth/invalid-email'        ? 'Please enter a valid email address.'
+              : e.code==='auth/weak-password'        ? 'Password must be at least 6 characters.'
+              : 'Error: '+e.message;
+      errEl.textContent=msg; errEl.className='msg error'; errEl.style.display='block';
+    })
+    .finally(function(){
+      btn.innerHTML='<i class="fas fa-user-plus"></i> Create Account'; btn.disabled=false;
+    });
+}
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+function doLogin(){
+  var email = document.getElementById('liEmail').value.trim().toLowerCase();
+  var pass  = document.getElementById('liPass').value;
+  var errEl = document.getElementById('errLogin');
+  var btn   = document.getElementById('btnLogin');
+  errEl.style.display='none';
+  if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.className='msg error'; errEl.style.display='block'; return; }
+  btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Signing in...'; btn.disabled=true;
+
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(function(){
+      closeAuth();
+      document.getElementById('liEmail').value='';
+      document.getElementById('liPass').value='';
+      // toast fires from onAuthStateChanged
+    })
+    .catch(function(){
+      errEl.textContent='Invalid email or password. Please try again.'; errEl.className='msg error'; errEl.style.display='block';
+    })
+    .finally(function(){
+      btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In'; btn.disabled=false;
+    });
+}
+
+// ─── LOGOUT ───────────────────────────────────────────────────────────────────
+function doLogout(){
+  auth.signOut().then(function(){
+    toast('Signed out. See you soon! 🌷','info');
+  });
+}
+
+// ─── AUTH STATE (runs on every page load — restores session automatically) ────
+auth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || user.email.split('@')[0] };
+    updateHeader();
+    loadProducts();
+    // Only show welcome toast on sign-in (not on page refresh)
+    if(window._justLoggedIn){
+      toast('Welcome back, '+(currentUser.displayName||'friend')+'! 🌸','success');
+      window._justLoggedIn=false;
+    }
+  } else {
+    currentUser = null;
+    updateHeader();
+    loadProducts();
+  }
+});
+
+// ─── PRODUCTS — LOAD FROM FIRESTORE ───────────────────────────────────────────
+function loadProducts(){
+  db.collection('products').orderBy('createdAt','desc').get()
+    .then(function(snap){
+      allProducts = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      renderProducts();
+      renderHomePreview();
+    })
+    .catch(function(){
+      allProducts=[];
+      renderProducts();
+      renderHomePreview();
+    });
+}
+
+// ─── RENDER PRODUCTS ──────────────────────────────────────────────────────────
+function renderProducts(){
+  var grid=document.getElementById('productsGrid');
+  if(!allProducts.length){
+    grid.innerHTML='<div class="empty-state"><span>🌸</span><h3>No flowers listed yet</h3><p style="margin-bottom:20px">'+(currentUser?'Be the first to list yours!':'Sign in and be the first to list!')+'</p>'+(!currentUser?'<button class="btn" onclick="openAuth(\'register\')"><i class="fas fa-user-plus"></i> Join Free</button>':'')+'</div>';
+    return;
+  }
+  grid.innerHTML=allProducts.map(function(p){
+    var isOwner=!!(currentUser&&currentUser.uid===p.sellerId);
+    var ownerBtns=isOwner
+      ?'<div class="owner-actions"><button class="owner-btn edit" title="Edit" onclick="event.stopPropagation();openEditModal(\''+p.id+'\')"><i class="fas fa-pencil"></i></button><button class="owner-btn del" title="Remove" onclick="event.stopPropagation();doDeleteProduct(\''+p.id+'\')"><i class="fas fa-trash"></i></button></div>'
+      :'';
+    var canBuy=!!currentUser;
+    var buyLabel=canBuy?'Buy Now':'<i class="fas fa-lock" style="font-size:0.75rem;margin-right:4px"></i>Sign in';
+    return '<div class="product-card" onclick="openProductModal(\''+p.id+'\')">'
+      +'<div class="product-card-img"><img src="'+esc(p.imageUrl)+'" alt="'+esc(p.name)+'" loading="lazy"/>'+ownerBtns+'</div>'
+      +'<div class="product-card-body">'
+        +'<div class="product-tag">'+esc(p.category||'Bouquet')+'</div>'
+        +'<h3>'+esc(p.name)+'</h3>'
+        +'<p>'+esc(p.description)+'</p>'
+        +'<div class="seller-name"><i class="fas fa-store"></i> '+esc(p.sellerName||'Flower Shop')+'</div>'
+        +'<div class="product-footer">'
+          +'<span class="product-price">'+esc(p.price)+'</span>'
+          +'<button class="buy-btn'+(canBuy?'':' locked')+'" onclick="event.stopPropagation();handleBuyClick(\''+p.id+'\')">'+buyLabel+'</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function renderHomePreview(){
+  var wrap=document.getElementById('homePreview');
+  var show=allProducts.slice(0,3);
+  if(!show.length){
+    wrap.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px 20px">'
+      +'<div style="font-size:3.5rem;margin-bottom:16px">🌸</div>'
+      +'<h3 style="font-family:var(--fi);font-size:1.4rem;color:var(--deep);margin-bottom:8px">No flowers listed yet</h3>'
+      +'<p style="color:var(--muted);margin-bottom:20px">Be the first to share a beautiful arrangement!</p>'
+      +'<button class="btn btn-sm" onclick="'+(currentUser?'openSellModal()':'openAuth(\'register\')')+'">'
+        +(currentUser?'<i class="fas fa-plus"></i> List Your Flower':'<i class="fas fa-user-plus"></i> Join Free')
+      +'</button></div>';
+    return;
+  }
+  wrap.innerHTML=show.map(function(p){
+    return '<div class="preview-card" onclick="goPage(null,\'products\')">'
+      +'<img src="'+esc(p.imageUrl)+'" alt="'+esc(p.name)+'"/>'
+      +'<div class="preview-card-body">'
+        +'<h3>'+esc(p.name)+'</h3>'
+        +'<p>'+esc(p.description).slice(0,70)+(p.description.length>70?'…':'')+'</p>'
+        +'<div class="preview-card-price">'+esc(p.price)+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+// ─── PRODUCT DETAIL MODAL ─────────────────────────────────────────────────────
+function openProductModal(id){
+  var p=allProducts.find(function(x){ return x.id===id; });
+  if(!p) return;
+  selectedProduct=p;
+  document.getElementById('modalImg').src           =p.imageUrl;
+  document.getElementById('modalTag').textContent   =p.category||'Bouquet';
+  document.getElementById('modalName').textContent  =p.name;
+  document.getElementById('modalDesc').textContent  =p.description;
+  document.getElementById('modalPrice').textContent =p.price;
+  document.getElementById('modalSeller').textContent=p.sellerName||'Flower Shop';
+  var buyBtn=document.getElementById('modalBuyBtn');
+  buyBtn.innerHTML=currentUser?'<i class="fas fa-shopping-bag"></i> Buy Now':'<i class="fas fa-lock"></i> Sign in to Buy';
+  document.getElementById('productModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeProductModal(){
+  document.getElementById('productModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ─── BUY ──────────────────────────────────────────────────────────────────────
+function doBuy(){
+  if(!currentUser){ closeProductModal(); openAuth('login'); toast('Please sign in to buy 🌸','info'); return; }
+  if(selectedProduct) document.getElementById('payAmount').textContent=selectedProduct.price;
+  closeProductModal(); goPage(null,'payment');
+}
+function handleBuyClick(id){
+  if(!currentUser){ openAuth('login'); toast('Please sign in to buy 🌸','info'); return; }
+  var p=allProducts.find(function(x){ return x.id===id; });
+  if(!p) return;
+  selectedProduct=p;
+  document.getElementById('payAmount').textContent=p.price;
+  goPage(null,'payment');
+}
+function selectMethod(el){
+  document.querySelectorAll('.method-item').forEach(function(m){ m.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function handlePayment(){
+  if(!currentUser){ goPage(null,'home'); openAuth('login'); return; }
+  var btn=document.getElementById('payBtn');
+  btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Processing...'; btn.disabled=true;
+  setTimeout(function(){
+    toast('Order placed! Your flowers are on the way 🌸','success');
+    btn.innerHTML='<i class="fas fa-lock"></i> Confirm & Pay Now'; btn.disabled=false;
+    setTimeout(function(){ goPage(null,'home'); },1500);
+  },2500);
+}
+
+// ─── SELL MODAL ───────────────────────────────────────────────────────────────
+function openSellModal(){
+  if(!currentUser){ openAuth('login'); toast('Please sign in to sell 🌸','info'); return; }
+  editingProductId=null;
+  document.getElementById('sellModalTitle').textContent='List a Flower 🌸';
+  document.getElementById('btnSellText').textContent='List for Sale';
+  resetSellForm();
+  document.getElementById('sellModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function openEditModal(id){
+  if(!currentUser) return;
+  var p=allProducts.find(function(x){ return x.id===id; });
+  if(!p||p.sellerId!==currentUser.uid){ toast('You can only edit your own listings.','error'); return; }
+  editingProductId=id;
+  document.getElementById('sellModalTitle').textContent='Edit Listing ✏️';
+  document.getElementById('btnSellText').textContent='Save Changes';
+  document.getElementById('sellName').value    =p.name;
+  document.getElementById('sellCategory').value=p.category||'';
+  document.getElementById('sellPrice').value   =p.price;
+  document.getElementById('sellDesc').value    =p.description;
+  var prev=document.getElementById('sellImgPreview');
+  prev.src=p.imageUrl; prev.style.display='block';
+  document.getElementById('sellUpIcon').style.display='none';
+  document.getElementById('sellUpText').style.display='none';
+  document.getElementById('errSell').style.display='none';
+  document.getElementById('sellModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSellModal(){
+  document.getElementById('sellModal').classList.remove('open');
+  document.body.style.overflow='';
+  editingProductId=null;
+}
+function resetSellForm(){
+  ['sellName','sellCategory','sellPrice','sellDesc'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('sellImg').value='';
+  document.getElementById('sellImgPreview').style.display='none';
+  document.getElementById('sellUpIcon').style.display='block';
+  document.getElementById('sellUpText').style.display='block';
+  document.getElementById('errSell').style.display='none';
+}
+function previewSellImg(input){
+  var file=input.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('sellImgPreview');
+    prev.src=e.target.result; prev.style.display='block';
+    document.getElementById('sellUpIcon').style.display='none';
+    document.getElementById('sellUpText').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── SAVE / UPDATE PRODUCT ────────────────────────────────────────────────────
+function doSellProduct(){
+  if(!currentUser){ closeSellModal(); openAuth('login'); return; }
+  var name    =document.getElementById('sellName').value.trim();
+  var price   =document.getElementById('sellPrice').value.trim();
+  var desc    =document.getElementById('sellDesc').value.trim();
+  var category=document.getElementById('sellCategory').value.trim()||'Bouquet';
+  var file    =document.getElementById('sellImg').files[0];
+  var errEl   =document.getElementById('errSell');
+  var btn     =document.getElementById('btnSell');
+  errEl.style.display='none';
+  if(!name||!price||!desc){ errEl.textContent='Please fill in the title, price and description.'; errEl.className='msg error'; errEl.style.display='block'; return; }
+  var existingProduct = editingProductId ? allProducts.find(function(x){ return x.id===editingProductId; }) : null;
+  var existingImage   = existingProduct ? existingProduct.imageUrl : null;
+  if(!file&&!existingImage){ errEl.textContent='Please upload a flower image.'; errEl.className='msg error'; errEl.style.display='block'; return; }
+  btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Saving...';
+
+  function saveToFirestore(imageUrl){
+    if(editingProductId){
+      // UPDATE — only owner can do this (Firestore rules enforce it server-side too)
+      db.collection('products').doc(editingProductId).update({
+        name: name, price: price, description: desc, category: category, imageUrl: imageUrl
+      })
+      .then(function(){
+        toast('Listing updated! 🌸','success');
+        closeSellModal(); resetSellForm(); loadProducts();
+      })
+      .catch(function(e){ errEl.textContent='Error: '+e.message; errEl.className='msg error'; errEl.style.display='block'; })
+      .finally(function(){ btn.innerHTML='<i class="fas fa-store"></i> <span id="btnSellText">List for Sale</span>'; btn.disabled=false; });
+    } else {
+      // NEW LISTING
+      db.collection('products').add({
+        name: name, price: price, description: desc, category: category, imageUrl: imageUrl,
+        sellerId:   currentUser.uid,
+        sellerName: currentUser.displayName || currentUser.email.split('@')[0],
+        createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(function(){
+        toast('Your flower is now listed! 🌸','success');
+        closeSellModal(); resetSellForm(); loadProducts();
+      })
+      .catch(function(e){ errEl.textContent='Error: '+e.message; errEl.className='msg error'; errEl.style.display='block'; })
+      .finally(function(){ btn.innerHTML='<i class="fas fa-store"></i> <span id="btnSellText">List for Sale</span>'; btn.disabled=false; });
+    }
+  }
+
+  if(file){
+    if(file.size > 800 * 1024){
+      errEl.textContent='Image too large — please use a photo under 800KB.';
+      errEl.className='msg error'; errEl.style.display='block';
+      btn.innerHTML='<i class="fas fa-store"></i> <span id="btnSellText">List for Sale</span>'; btn.disabled=false;
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e){ saveToFirestore(e.target.result); };
+    reader.onerror = function(){
+      errEl.textContent='Failed to read image. Please try again.';
+      errEl.className='msg error'; errEl.style.display='block';
+      btn.innerHTML='<i class="fas fa-store"></i> <span id="btnSellText">List for Sale</span>'; btn.disabled=false;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveToFirestore(existingImage);
+  }
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+function doDeleteProduct(id){
+  var p=allProducts.find(function(x){ return x.id===id; });
+  if(!p||!currentUser||p.sellerId!==currentUser.uid){ toast('You can only delete your own listings.','error'); return; }
+  if(!confirm('Remove this listing? This cannot be undone.')) return;
+  db.collection('products').doc(id).delete()
+    .then(function(){
+      toast('Listing removed.','info');
+      loadProducts();
+    })
+    .catch(function(e){ toast('Error: '+e.message,'error'); });
+}
+
+// ─── CONTACT ──────────────────────────────────────────────────────────────────
+function handleContact(){
+  var name =document.getElementById('cName').value.trim();
+  var email=document.getElementById('cEmail').value.trim();
+  var msg  =document.getElementById('cMessage').value.trim();
+  var el   =document.getElementById('contactMsg');
+  if(!name||!email||!msg){ el.textContent='Please fill in all required fields.'; el.className='msg error'; el.style.display='block'; return; }
+  el.textContent="Message sent! We'll get back to you within 24 hours 🌸";
+  el.className='msg success'; el.style.display='block';
+  ['cName','cEmail','cSubject','cMessage'].forEach(function(id){ document.getElementById(id).value=''; });
+  setTimeout(function(){ el.style.display='none'; },4000);
+}
+
+// ─── PETALS ───────────────────────────────────────────────────────────────────
+(function(){
+  var emojis=['🌸','🌺','🌼','🌷','✿','❀','🌹'];
+  var wrap=document.getElementById('petalBg');
+  for(var i=0;i<18;i++){
+    var p=document.createElement('span');
+    p.className='petal';
+    p.textContent=emojis[i%emojis.length];
+    p.style.left=Math.random()*100+'%';
+    p.style.fontSize=(14+Math.random()*14)+'px';
+    p.style.animationDuration=(12+Math.random()*20)+'s';
+    p.style.animationDelay=(-Math.random()*20)+'s';
+    wrap.appendChild(p);
+  }
+})();
+
+// ─── INIT — auth.onAuthStateChanged handles session restore automatically ─────
+// No manual session init needed — Firebase persists login across page refreshes
+updateHeader(); // show sign-in buttons immediately before Firebase responds
+
+</script>
+</body>
+</html>
