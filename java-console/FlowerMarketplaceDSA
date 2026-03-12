@@ -1,0 +1,918 @@
+import java.util.*;
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════╗
+ * ║       🌸  Flower. Marketplace — DSA Showcase Console App  🌸        ║
+ * ║    Based on: Flower. — Where Blooms Meet Emotions (website)          ║
+ * ╠══════════════════════════════════════════════════════════════════════╣
+ * ║  DSA TOPICS COVERED (all applied to Flower. domain):                 ║
+ * ║                                                                      ║
+ * ║  1.  Doubly Linked List  → Product Catalog (newest first)            ║
+ * ║  2.  Stack               → Browsing History / Undo last listing      ║
+ * ║  3.  Queue               → Order Processing (FIFO checkout queue)    ║
+ * ║  4.  HashMap             → User lookup by email O(1)                 ║
+ * ║  5.  Bubble Sort         → Sort products by price (ascending)        ║
+ * ║  6.  Merge Sort          → Sort products by name (alphabetical)      ║
+ * ║  7.  Binary Search       → Find product by exact price               ║
+ * ║  8.  BST                 → Products indexed by price                 ║
+ * ║  9.  Min-Heap            → Cheapest flower priority queue            ║
+ * ║  10. Graph + BFS/DFS     → Category relationship traversal           ║
+ * ╚══════════════════════════════════════════════════════════════════════╝
+ *
+ *  Compile & Run:
+ *      javac FlowerMarketplaceDSA.java && java FlowerMarketplaceDSA
+ */
+public class FlowerMarketplaceDSA {
+
+    static Scanner sc = new Scanner(System.in);
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  PRODUCT & USER MODELS  (matches your Firestore document fields)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class Product implements Comparable<Product> {
+        String id, name, category, description, price, imageUrl;
+        String sellerId, sellerName;
+        int    priceInt;   // parsed int for DSA operations
+
+        Product(String id, String name, String price, String category,
+                String description, String imageUrl, String sellerId, String sellerName) {
+            this.id = id; this.name = name; this.price = price;
+            this.category = category; this.description = description;
+            this.imageUrl = imageUrl; this.sellerId = sellerId;
+            this.sellerName = sellerName;
+            this.priceInt = parsePrice(price);
+        }
+
+        static int parsePrice(String p) {
+            try { return Integer.parseInt(p.replaceAll("[^0-9]", "")); }
+            catch (Exception e) { return 0; }
+        }
+
+        @Override public int compareTo(Product o) {
+            return Integer.compare(this.priceInt, o.priceInt);
+        }
+
+        void print(int idx) {
+            System.out.printf("  [%d] %-30s %-8s  %-12s  🏪 %s%n",
+                idx, name, price, "[" + category + "]", sellerName);
+        }
+
+        void printDetail() {
+            System.out.println("\n  ╔══════════════════════════════════════════════╗");
+            System.out.printf ("  ║  🌸 %-42s║%n", name);
+            System.out.println("  ╠══════════════════════════════════════════════╣");
+            System.out.printf ("  ║  Category : %-33s║%n", category);
+            System.out.printf ("  ║  Price    : %-33s║%n", price);
+            System.out.printf ("  ║  Seller   : %-33s║%n", sellerName);
+            System.out.printf ("  ║  Desc     : %-33s║%n",
+                description.length() > 33 ? description.substring(0,32)+"…" : description);
+            System.out.println("  ╚══════════════════════════════════════════════╝");
+        }
+    }
+
+    static class User {
+        String uid, displayName, email, password;
+        User(String uid, String displayName, String email, String password) {
+            this.uid = uid; this.displayName = displayName;
+            this.email = email; this.password = password;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ① DOUBLY LINKED LIST — Product Catalog
+    //  (Mirrors the Firestore collection ordered by createdAt desc)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class DLLNode {
+        Product data;
+        DLLNode prev, next;
+        DLLNode(Product p) { data = p; }
+    }
+
+    static class ProductCatalog {
+        DLLNode head, tail;
+        int size = 0;
+
+        // Add newest product to front (like Firestore orderBy createdAt desc)
+        void addFront(Product p) {
+            DLLNode node = new DLLNode(p);
+            if (head == null) { head = tail = node; }
+            else { node.next = head; head.prev = node; head = node; }
+            size++;
+        }
+
+        // Remove product by id (like Firestore delete)
+        boolean remove(String id) {
+            for (DLLNode cur = head; cur != null; cur = cur.next) {
+                if (cur.data.id.equals(id)) {
+                    if (cur.prev != null) cur.prev.next = cur.next; else head = cur.next;
+                    if (cur.next != null) cur.next.prev = cur.prev; else tail = cur.prev;
+                    size--;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Traverse forward (home preview — first 3)
+        List<Product> toList() {
+            List<Product> list = new ArrayList<>();
+            for (DLLNode cur = head; cur != null; cur = cur.next) list.add(cur.data);
+            return list;
+        }
+
+        // Traverse backward (reverse: oldest first)
+        List<Product> toListReverse() {
+            List<Product> list = new ArrayList<>();
+            for (DLLNode cur = tail; cur != null; cur = cur.prev) list.add(cur.data);
+            return list;
+        }
+
+        void print() {
+            System.out.println("\n  📋  Product Catalog — Doubly Linked List  (size=" + size + ")");
+            System.out.println("  " + "─".repeat(70));
+            int i = 1;
+            for (DLLNode cur = head; cur != null; cur = cur.next) cur.data.print(i++);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ② STACK — Browsing History & Undo Last Listing
+    //  (Like browser back-button; also "undo" the last product you listed)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class BrowsingStack {
+        Deque<Product> stack = new ArrayDeque<>();
+
+        void push(Product p) {
+            stack.push(p);
+            System.out.println("  📥 Pushed to history: " + p.name);
+        }
+
+        Product pop() {
+            if (stack.isEmpty()) { System.out.println("  📭 History is empty."); return null; }
+            Product p = stack.pop();
+            System.out.println("  📤 Popped (undo / back): " + p.name);
+            return p;
+        }
+
+        Product peek() {
+            if (stack.isEmpty()) return null;
+            System.out.println("  👁  Last viewed: " + stack.peek().name);
+            return stack.peek();
+        }
+
+        void print() {
+            System.out.println("\n  📚  Browsing History Stack  (top → bottom, size=" + stack.size() + ")");
+            System.out.println("  " + "─".repeat(60));
+            int i = 1;
+            for (Product p : stack) {
+                System.out.printf("  [%d] %-30s %s%n", i++, p.name, p.price);
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ③ QUEUE — Order Processing (FIFO)
+    //  (Matches your payment page — orders processed in arrival order)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class Order {
+        String orderId, buyerName, productName, paymentMethod;
+        String amount;
+        Order(String orderId, String buyerName, String productName,
+              String amount, String paymentMethod) {
+            this.orderId = orderId; this.buyerName = buyerName;
+            this.productName = productName; this.amount = amount;
+            this.paymentMethod = paymentMethod;
+        }
+        public String toString() {
+            return String.format("  #%-8s  Buyer: %-14s  Item: %-24s  %s  via %s",
+                orderId, buyerName, productName, amount, paymentMethod);
+        }
+    }
+
+    static class OrderQueue {
+        Queue<Order> queue = new LinkedList<>();
+        int counter = 1001;
+
+        void enqueue(String buyer, String product, String amount, String method) {
+            Order o = new Order("ORD-" + (counter++), buyer, product, amount, method);
+            queue.add(o);
+            System.out.println("  ✅ Order placed: " + o.orderId + " — " + product);
+        }
+
+        void processNext() {
+            if (queue.isEmpty()) { System.out.println("  📭 No pending orders."); return; }
+            Order o = queue.poll();
+            System.out.println("  🚚 Processing → " + o);
+        }
+
+        void processAll() {
+            System.out.println("\n  🚚  Processing All Orders...");
+            System.out.println("  " + "─".repeat(70));
+            while (!queue.isEmpty()) {
+                Order o = queue.poll();
+                System.out.println("  ✅ Dispatched → " + o);
+                sleep(200);
+            }
+            System.out.println("  🎉 All orders dispatched! Your flowers are on the way 🌸");
+        }
+
+        void print() {
+            System.out.println("\n  🛒  Order Queue  (front → rear, pending=" + queue.size() + ")");
+            System.out.println("  " + "─".repeat(70));
+            if (queue.isEmpty()) { System.out.println("  (empty)"); return; }
+            int i = 1;
+            for (Order o : queue) System.out.printf("  [%d] %s%n", i++, o);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ④ HASH MAP — User Lookup by Email O(1)
+    //  (Your Firebase Auth + Firestore users collection)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class UserHashMap {
+        // Key = email (like Firebase Auth), Value = User object
+        HashMap<String, User> map = new HashMap<>();
+
+        void register(User u) {
+            if (map.containsKey(u.email)) {
+                System.out.println("  ❌ Email already registered: " + u.email); return;
+            }
+            map.put(u.email, u);
+            System.out.println("  ✅ Registered: " + u.displayName + " (" + u.email + ")");
+        }
+
+        User login(String email, String password) {
+            User u = map.get(email);   // O(1) lookup
+            if (u != null && u.password.equals(password)) {
+                System.out.println("  ✅ Welcome back, " + u.displayName + "! 🌸");
+                return u;
+            }
+            System.out.println("  ❌ Invalid email or password.");
+            return null;
+        }
+
+        void print() {
+            System.out.println("\n  👤  User HashMap  (size=" + map.size() + ")");
+            System.out.println("  " + "─".repeat(60));
+            for (Map.Entry<String, User> e : map.entrySet())
+                System.out.printf("  Key: %-28s → %s (%s)%n",
+                    e.getKey(), e.getValue().displayName, e.getValue().uid);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑤ BUBBLE SORT — Sort Products by Price (Ascending)
+    //  (Like sorting your products grid by lowest price first)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static Product[] bubbleSort(Product[] arr) {
+        Product[] a = arr.clone();
+        int n = a.length, passes = 0, swaps = 0;
+        for (int i = 0; i < n - 1; i++) {
+            boolean swapped = false;
+            for (int j = 0; j < n - i - 1; j++) {
+                if (a[j].priceInt > a[j+1].priceInt) {
+                    Product tmp = a[j]; a[j] = a[j+1]; a[j+1] = tmp;
+                    swapped = true; swaps++;
+                }
+            }
+            passes++;
+            if (!swapped) break;  // early exit optimisation
+        }
+        System.out.printf("  ℹ  Bubble Sort: %d passes, %d swaps%n", passes, swaps);
+        return a;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑥ MERGE SORT — Sort Products by Name (Alphabetical)
+    //  (Like sorting your products grid A→Z)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static Product[] mergeSort(Product[] arr) {
+        if (arr.length <= 1) return arr;
+        int mid = arr.length / 2;
+        Product[] left  = mergeSort(Arrays.copyOfRange(arr, 0, mid));
+        Product[] right = mergeSort(Arrays.copyOfRange(arr, mid, arr.length));
+        return merge(left, right);
+    }
+
+    static Product[] merge(Product[] l, Product[] r) {
+        Product[] result = new Product[l.length + r.length];
+        int i = 0, j = 0, k = 0;
+        while (i < l.length && j < r.length)
+            result[k++] = l[i].name.compareToIgnoreCase(r[j].name) <= 0 ? l[i++] : r[j++];
+        while (i < l.length)  result[k++] = l[i++];
+        while (j < r.length)  result[k++] = r[j++];
+        return result;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑦ BINARY SEARCH — Find Product by Exact Price in Sorted Array
+    //  (After bubble sort, instantly find all products at a given price)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static int binarySearch(Product[] sorted, int targetPrice) {
+        int lo = 0, hi = sorted.length - 1, steps = 0;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            steps++;
+            System.out.printf("  Step %d: checking index %d → %s (%s)%n",
+                steps, mid, sorted[mid].name, sorted[mid].price);
+            if      (sorted[mid].priceInt == targetPrice) { System.out.println("  ✅ Found at index " + mid + " in " + steps + " steps!"); return mid; }
+            else if (sorted[mid].priceInt <  targetPrice)  lo = mid + 1;
+            else                                            hi = mid - 1;
+        }
+        System.out.println("  ❌ No product found at price ₹" + targetPrice + " (" + steps + " steps).");
+        return -1;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑧ BINARY SEARCH TREE (BST) — Products Indexed by Price
+    //  (Efficient range queries: "show all flowers between ₹400–₹700")
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class BSTNode {
+        Product data;
+        BSTNode left, right;
+        BSTNode(Product p) { data = p; }
+    }
+
+    static class ProductBST {
+        BSTNode root;
+
+        void insert(Product p) { root = insert(root, p); }
+
+        BSTNode insert(BSTNode node, Product p) {
+            if (node == null) return new BSTNode(p);
+            if      (p.priceInt < node.data.priceInt) node.left  = insert(node.left,  p);
+            else if (p.priceInt > node.data.priceInt) node.right = insert(node.right, p);
+            // equal prices: insert right
+            else node.right = insert(node.right, p);
+            return node;
+        }
+
+        // In-order = sorted by price (cheapest first)
+        void inorder(BSTNode node, List<Product> result) {
+            if (node == null) return;
+            inorder(node.left, result);
+            result.add(node.data);
+            inorder(node.right, result);
+        }
+
+        List<Product> getSorted() {
+            List<Product> list = new ArrayList<>();
+            inorder(root, list);
+            return list;
+        }
+
+        // Range query: find products within [minPrice, maxPrice]
+        List<Product> rangeQuery(int minPrice, int maxPrice) {
+            List<Product> result = new ArrayList<>();
+            rangeQuery(root, minPrice, maxPrice, result);
+            return result;
+        }
+
+        void rangeQuery(BSTNode node, int min, int max, List<Product> result) {
+            if (node == null) return;
+            if (node.data.priceInt > min)  rangeQuery(node.left,  min, max, result);
+            if (node.data.priceInt >= min && node.data.priceInt <= max) result.add(node.data);
+            if (node.data.priceInt < max)  rangeQuery(node.right, min, max, result);
+        }
+
+        void printInorder() {
+            System.out.println("\n  🌳  BST In-order Traversal (Price Low → High)");
+            System.out.println("  " + "─".repeat(65));
+            List<Product> sorted = getSorted();
+            int i = 1;
+            for (Product p : sorted) p.print(i++);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑨ MIN-HEAP — Cheapest Flower Priority Queue
+    //  (Like a "deals" section: always show cheapest flower first)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class FlowerMinHeap {
+        // Java's PriorityQueue is a min-heap by default
+        PriorityQueue<Product> heap = new PriorityQueue<>();
+
+        void insert(Product p) {
+            heap.add(p);
+            System.out.println("  ➕ Inserted into heap: " + p.name + " " + p.price);
+        }
+
+        Product getCheapest() {
+            if (heap.isEmpty()) { System.out.println("  📭 Heap is empty."); return null; }
+            Product p = heap.peek();
+            System.out.println("  💰 Cheapest flower: " + p.name + " at " + p.price);
+            return p;
+        }
+
+        Product extractCheapest() {
+            if (heap.isEmpty()) { System.out.println("  📭 Heap is empty."); return null; }
+            Product p = heap.poll();
+            System.out.println("  📤 Extracted cheapest: " + p.name + " " + p.price);
+            return p;
+        }
+
+        void printDeals() {
+            System.out.println("\n  💰  Best Deals — Min-Heap (cheapest first)  (size=" + heap.size() + ")");
+            System.out.println("  " + "─".repeat(65));
+            // drain a copy so we don't destroy the heap
+            PriorityQueue<Product> copy = new PriorityQueue<>(heap);
+            int rank = 1;
+            while (!copy.isEmpty()) {
+                Product p = copy.poll();
+                System.out.printf("  #%-3d %-28s %-8s  [%s]%n", rank++, p.name, p.price, p.category);
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ⑩ GRAPH + BFS / DFS — Category Relationship Traversal
+    //  (Models how your website's categories are related:
+    //   Bouquet → Basket → Wreath → Vase → Garland → Centerpiece)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static class CategoryGraph {
+        Map<String, List<String>> adj = new LinkedHashMap<>();
+
+        void addEdge(String from, String to) {
+            adj.computeIfAbsent(from, k -> new ArrayList<>()).add(to);
+            adj.computeIfAbsent(to,   k -> new ArrayList<>()).add(from);
+        }
+
+        // BFS — find shortest path between two categories
+        List<String> bfs(String start) {
+            List<String> visited = new ArrayList<>();
+            Set<String>  seen    = new LinkedHashSet<>();
+            Queue<String> queue  = new LinkedList<>();
+            queue.add(start); seen.add(start);
+            System.out.println("\n  🔵 BFS from \"" + start + "\":");
+            while (!queue.isEmpty()) {
+                String node = queue.poll();
+                visited.add(node);
+                System.out.println("    ➜ Visited: " + node);
+                for (String neighbour : adj.getOrDefault(node, new ArrayList<>())) {
+                    if (!seen.contains(neighbour)) { seen.add(neighbour); queue.add(neighbour); }
+                }
+            }
+            return visited;
+        }
+
+        // DFS — explore all related categories recursively
+        List<String> dfs(String start) {
+            List<String> visited = new ArrayList<>();
+            Set<String>  seen    = new LinkedHashSet<>();
+            System.out.println("\n  🟣 DFS from \"" + start + "\":");
+            dfsHelper(start, seen, visited);
+            return visited;
+        }
+
+        void dfsHelper(String node, Set<String> seen, List<String> visited) {
+            seen.add(node); visited.add(node);
+            System.out.println("    ➜ Visited: " + node);
+            for (String neighbour : adj.getOrDefault(node, new ArrayList<>())) {
+                if (!seen.contains(neighbour)) dfsHelper(neighbour, seen, visited);
+            }
+        }
+
+        void printAdjacency() {
+            System.out.println("\n  🕸  Category Graph — Adjacency List");
+            System.out.println("  " + "─".repeat(50));
+            for (Map.Entry<String, List<String>> e : adj.entrySet())
+                System.out.println("  " + e.getKey() + " ── " + e.getValue());
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  SEED DATA  (matching your website's sample listings)
+    // ══════════════════════════════════════════════════════════════════════
+
+    static ProductCatalog catalog   = new ProductCatalog();
+    static BrowsingStack  history   = new BrowsingStack();
+    static OrderQueue     orders    = new OrderQueue();
+    static UserHashMap    userStore = new UserHashMap();
+    static ProductBST     bst       = new ProductBST();
+    static FlowerMinHeap  heap      = new FlowerMinHeap();
+    static CategoryGraph  graph     = new CategoryGraph();
+
+    static void seedData() {
+        // ── Users (matching your Firebase Auth users)
+        userStore.register(new User("uid_s1", "Ananya Sharma", "ananya@example.com", "pass123"));
+        userStore.register(new User("uid_s2", "Rohan Mehta",   "rohan@example.com",  "pass123"));
+        userStore.register(new User("uid_s3", "Priya Singh",   "priya@example.com",  "pass123"));
+
+        // ── Products (matching your Firestore products collection)
+        Product[] ps = {
+            new Product("pid_1", "Pink Rose Bouquet",    "₹499", "Bouquet",
+                "A gorgeous bouquet of 12 fresh pink roses, perfect for any occasion.",
+                "https://images.unsplash.com/photo-1490750967868-88df5691cc7a",
+                "uid_s1", "Ananya Sharma"),
+            new Product("pid_2", "Sunflower Basket",     "₹649", "Basket",
+                "Bright yellow sunflowers arranged in a rustic wicker basket.",
+                "https://images.unsplash.com/photo-1597848212624-a19eb35e2651",
+                "uid_s2", "Rohan Mehta"),
+            new Product("pid_3", "Mixed Spring Wreath",  "₹849", "Wreath",
+                "Colorful spring flowers woven into a beautiful door wreath.",
+                "https://images.unsplash.com/photo-1561181286-d3fee7d55364",
+                "uid_s1", "Ananya Sharma"),
+            new Product("pid_4", "White Lily Vase",      "₹599", "Vase",
+                "Elegant white lilies in a clear glass vase, ideal for gifting.",
+                "https://images.unsplash.com/photo-1490750967868-88df5691cc7a",
+                "uid_s2", "Rohan Mehta"),
+            new Product("pid_5", "Red Rose Bouquet",     "₹399", "Bouquet",
+                "Classic red roses to express your deepest love and affection.",
+                "https://images.unsplash.com/photo-1455659817273-f96807779a8a",
+                "uid_s3", "Priya Singh"),
+            new Product("pid_6", "Lavender Garland",     "₹749", "Garland",
+                "Fragrant lavender garland, handcrafted for weddings and events.",
+                "https://images.unsplash.com/photo-1468327768560-75b778cbb551",
+                "uid_s3", "Priya Singh"),
+            new Product("pid_7", "Marigold Centerpiece", "₹550", "Centerpiece",
+                "Vibrant marigold centerpiece for festivals and celebrations.",
+                "https://images.unsplash.com/photo-1490750967868-88df5691cc7a",
+                "uid_s1", "Ananya Sharma"),
+        };
+
+        // Add to catalog (newest first — like Firestore orderBy createdAt desc)
+        for (int i = ps.length - 1; i >= 0; i--) catalog.addFront(ps[i]);
+
+        // Add to BST and Heap
+        for (Product p : ps) { bst.insert(p); heap.insert(p); }
+
+        // ── Category Graph edges (like your website's category filtering)
+        graph.addEdge("Bouquet",     "Basket");
+        graph.addEdge("Basket",      "Wreath");
+        graph.addEdge("Wreath",      "Garland");
+        graph.addEdge("Garland",     "Centerpiece");
+        graph.addEdge("Centerpiece", "Vase");
+        graph.addEdge("Bouquet",     "Vase");
+        graph.addEdge("Bouquet",     "Garland");
+
+        // ── Sample browsing history
+        history.push(ps[0]);
+        history.push(ps[1]);
+        history.push(ps[3]);
+
+        // ── Sample orders (from your payment page: UPI / Card / COD)
+        orders.enqueue("Ananya Sharma",  "Pink Rose Bouquet",    "₹499", "UPI (GPay)");
+        orders.enqueue("Rohan Mehta",    "Sunflower Basket",     "₹649", "Credit Card");
+        orders.enqueue("Priya Singh",    "White Lily Vase",      "₹599", "Cash on Delivery");
+        orders.enqueue("Kavya Nair",     "Red Rose Bouquet",     "₹399", "UPI (PhonePe)");
+        orders.enqueue("Meera Krishnan", "Lavender Garland",     "₹749", "Debit Card");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  MAIN MENU
+    // ══════════════════════════════════════════════════════════════════════
+
+    public static void main(String[] args) {
+        banner();
+        System.out.println("\n  ⏳ Loading seed data...");
+        seedData();
+        System.out.println("  ✅ Seed data loaded — " + catalog.size + " products, "
+            + userStore.map.size() + " users.\n");
+
+        while (true) {
+            printMenu();
+            String choice = prompt("  > ").trim();
+            switch (choice) {
+                case "1":  demoDLL();          break;
+                case "2":  demoStack();        break;
+                case "3":  demoQueue();        break;
+                case "4":  demoHashMap();      break;
+                case "5":  demoBubbleSort();   break;
+                case "6":  demoMergeSort();    break;
+                case "7":  demoBinarySearch(); break;
+                case "8":  demoBST();          break;
+                case "9":  demoMinHeap();      break;
+                case "10": demoGraph();        break;
+                case "11": demoAll();          break;
+                case "0":
+                    System.out.println("\n  🌸 Thanks for exploring Flower. DSA! Goodbye!\n");
+                    return;
+                default: System.out.println("  ❌ Invalid option. Try again.");
+            }
+            pressEnter();
+        }
+    }
+
+    static void printMenu() {
+        System.out.println("\n  ╔════════════════════════════════════════════════╗");
+        System.out.println("  ║  🌸  Flower. DSA Topics — Choose a Demo        ║");
+        System.out.println("  ╠════════════════════════════════════════════════╣");
+        System.out.println("  ║  1.  Doubly Linked List  (Product Catalog)     ║");
+        System.out.println("  ║  2.  Stack               (Browsing History)    ║");
+        System.out.println("  ║  3.  Queue               (Order Processing)    ║");
+        System.out.println("  ║  4.  Hash Map            (User Lookup O(1))    ║");
+        System.out.println("  ║  5.  Bubble Sort         (Sort by Price)       ║");
+        System.out.println("  ║  6.  Merge Sort          (Sort by Name)        ║");
+        System.out.println("  ║  7.  Binary Search       (Find by Price)       ║");
+        System.out.println("  ║  8.  BST                 (Price Index + Range) ║");
+        System.out.println("  ║  9.  Min-Heap            (Cheapest Deals)      ║");
+        System.out.println("  ║  10. Graph BFS/DFS       (Category Relations)  ║");
+        System.out.println("  ╠════════════════════════════════════════════════╣");
+        System.out.println("  ║  11. 🌸 Run ALL demos at once                  ║");
+        System.out.println("  ║  0.  Exit                                      ║");
+        System.out.println("  ╚════════════════════════════════════════════════╝");
+    }
+
+    // ── Demo 1: Doubly Linked List ─────────────────────────────────────────
+
+    static void demoDLL() {
+        header("① DOUBLY LINKED LIST — Product Catalog");
+        System.out.println("  ► The catalog stores all listings in a DLL, newest first");
+        System.out.println("    (same ordering as Firestore orderBy createdAt desc)\n");
+
+        catalog.print();
+
+        System.out.println("\n  ► Adding a new listing to the FRONT (newest):");
+        Product newP = new Product("pid_8", "Jasmine Bouquet", "₹320", "Bouquet",
+            "Fresh jasmine blooms tied with a satin ribbon.",
+            "https://example.com/jasmine.jpg", "uid_s1", "Ananya Sharma");
+        catalog.addFront(newP);
+        catalog.print();
+
+        System.out.println("\n  ► Removing that listing (like clicking 🗑 Delete on website):");
+        catalog.remove("pid_8");
+        catalog.print();
+
+        System.out.println("\n  ► Traverse BACKWARD (oldest first, reverse DLL):");
+        List<Product> rev = catalog.toListReverse();
+        int i = 1;
+        for (Product p : rev) p.print(i++);
+
+        System.out.println("\n  📊 Time Complexity: addFront O(1), remove O(n), traverse O(n)");
+    }
+
+    // ── Demo 2: Stack ──────────────────────────────────────────────────────
+
+    static void demoStack() {
+        header("② STACK — Browsing History & Undo Last Listing");
+        System.out.println("  ► Every product you click is pushed to the history stack");
+        System.out.println("    (like your browser's back button)\n");
+
+        history.print();
+
+        System.out.println("\n  ► User views 'Lavender Garland':");
+        history.push(catalog.toList().stream()
+            .filter(p -> p.name.contains("Lavender")).findFirst()
+            .orElse(catalog.head.data));
+
+        System.out.println("\n  ► Peek — what was last viewed?");
+        history.peek();
+
+        System.out.println("\n  ► User presses BACK (pop):");
+        history.pop();
+
+        System.out.println("\n  ► Stack after back navigation:");
+        history.print();
+
+        System.out.println("\n  📊 Time Complexity: push O(1), pop O(1), peek O(1)");
+    }
+
+    // ── Demo 3: Queue ──────────────────────────────────────────────────────
+
+    static void demoQueue() {
+        header("③ QUEUE — Order Processing (FIFO Checkout)");
+        System.out.println("  ► Orders placed on the payment page queue up here.");
+        System.out.println("    First order placed = first order dispatched.\n");
+
+        orders.print();
+
+        System.out.println("\n  ► New order placed (UPI payment):");
+        orders.enqueue("Rahul Mehta", "Mixed Spring Wreath", "₹849", "UPI (Paytm)");
+
+        System.out.println("\n  ► Process next pending order:");
+        orders.processNext();
+
+        System.out.println("\n  ► Process ALL remaining orders:");
+        orders.processAll();
+
+        System.out.println("\n  📊 Time Complexity: enqueue O(1), dequeue O(1)");
+    }
+
+    // ── Demo 4: HashMap ────────────────────────────────────────────────────
+
+    static void demoHashMap() {
+        header("④ HASH MAP — User Lookup by Email O(1)");
+        System.out.println("  ► Models Firebase Auth: email is the key, User is the value.\n");
+
+        userStore.print();
+
+        System.out.println("\n  ► Register a new user (like 'Join Free' on website):");
+        userStore.register(new User("uid_s4", "Kavya Nair", "kavya@example.com", "flower123"));
+
+        System.out.println("\n  ► Try registering same email again:");
+        userStore.register(new User("uid_dup", "Duplicate", "kavya@example.com", "abc"));
+
+        System.out.println("\n  ► Sign In (like your login modal):");
+        userStore.login("ananya@example.com", "pass123");
+        userStore.login("ananya@example.com", "wrongpass");
+        userStore.login("nobody@example.com", "pass123");
+
+        System.out.println("\n  ► Updated user map:");
+        userStore.print();
+
+        System.out.println("\n  📊 Time Complexity: register O(1), login/lookup O(1)");
+    }
+
+    // ── Demo 5: Bubble Sort ────────────────────────────────────────────────
+
+    static void demoBubbleSort() {
+        header("⑤ BUBBLE SORT — Sort by Price (Low → High)");
+        System.out.println("  ► Like clicking 'Price: Low to High' filter on products page.\n");
+
+        List<Product> all = catalog.toList();
+        Product[] arr = all.toArray(new Product[0]);
+
+        System.out.println("  Before sorting:");
+        for (int i = 0; i < arr.length; i++) arr[i].print(i + 1);
+
+        System.out.println("\n  Sorting...");
+        Product[] sorted = bubbleSort(arr);
+
+        System.out.println("\n  After Bubble Sort (price low → high):");
+        for (int i = 0; i < sorted.length; i++) sorted[i].print(i + 1);
+
+        System.out.println("\n  📊 Time Complexity: Best O(n), Average/Worst O(n²)");
+        System.out.println("     Space: O(1) — in-place");
+    }
+
+    // ── Demo 6: Merge Sort ─────────────────────────────────────────────────
+
+    static void demoMergeSort() {
+        header("⑥ MERGE SORT — Sort by Name (A → Z)");
+        System.out.println("  ► Like clicking 'Name: A to Z' filter on products page.\n");
+
+        List<Product> all = catalog.toList();
+        Product[] arr = all.toArray(new Product[0]);
+
+        System.out.println("  Before sorting:");
+        for (int i = 0; i < arr.length; i++) arr[i].print(i + 1);
+
+        System.out.println("\n  Sorting...");
+        Product[] sorted = mergeSort(arr);
+
+        System.out.println("\n  After Merge Sort (name A → Z):");
+        for (int i = 0; i < sorted.length; i++) sorted[i].print(i + 1);
+
+        System.out.println("\n  📊 Time Complexity: Best/Average/Worst O(n log n)");
+        System.out.println("     Space: O(n) — needs auxiliary arrays");
+    }
+
+    // ── Demo 7: Binary Search ──────────────────────────────────────────────
+
+    static void demoBinarySearch() {
+        header("⑦ BINARY SEARCH — Find Product by Exact Price");
+        System.out.println("  ► First sort the array (bubble sort), then binary search.\n");
+
+        List<Product> all = catalog.toList();
+        Product[] arr = all.toArray(new Product[0]);
+        Product[] sorted = bubbleSort(arr);
+
+        System.out.println("  Sorted catalog:");
+        for (int i = 0; i < sorted.length; i++) sorted[i].print(i + 1);
+
+        System.out.println("\n  ► Searching for price ₹599:");
+        int idx = binarySearch(sorted, 599);
+        if (idx != -1) sorted[idx].printDetail();
+
+        System.out.println("\n  ► Searching for price ₹849:");
+        idx = binarySearch(sorted, 849);
+        if (idx != -1) sorted[idx].printDetail();
+
+        System.out.println("\n  ► Searching for price ₹999 (not listed):");
+        binarySearch(sorted, 999);
+
+        System.out.println("\n  📊 Time Complexity: O(log n)  |  Space: O(1)");
+        System.out.println("     (Linear search O(n) → Binary search O(log n) — " +
+            (int)Math.ceil(Math.log(sorted.length)/Math.log(2)) + " steps max for " +
+            sorted.length + " products)");
+    }
+
+    // ── Demo 8: BST ────────────────────────────────────────────────────────
+
+    static void demoBST() {
+        header("⑧ BST — Products Indexed by Price");
+        System.out.println("  ► In-order traversal gives sorted-by-price output.");
+        System.out.println("    Range queries: 'show flowers between ₹400–₹700'\n");
+
+        bst.printInorder();
+
+        System.out.println("\n  ► Range Query: Products between ₹400 and ₹700:");
+        List<Product> range = bst.rangeQuery(400, 700);
+        if (range.isEmpty()) System.out.println("  (none)");
+        else { int i = 1; for (Product p : range) p.print(i++); }
+
+        System.out.println("\n  ► Range Query: Products under ₹500 (budget blooms):");
+        range = bst.rangeQuery(0, 499);
+        if (range.isEmpty()) System.out.println("  (none)");
+        else { int i = 1; for (Product p : range) p.print(i++); }
+
+        System.out.println("\n  📊 Time Complexity: insert O(log n), search O(log n)");
+        System.out.println("     In-order traversal: O(n) | Range query: O(log n + k)");
+    }
+
+    // ── Demo 9: Min-Heap ───────────────────────────────────────────────────
+
+    static void demoMinHeap() {
+        header("⑨ MIN-HEAP — Cheapest Flower Deals Priority Queue");
+        System.out.println("  ► Always surfaces the cheapest flower at the top.");
+        System.out.println("    Like a 'Best Deals' section on your website.\n");
+
+        heap.printDeals();
+
+        System.out.println("\n  ► Get cheapest (peek):");
+        heap.getCheapest();
+
+        System.out.println("\n  ► Extract cheapest (sold out — remove from deals):");
+        heap.extractCheapest();
+
+        System.out.println("\n  ► Add a flash sale item (₹199 Mini Rose):");
+        heap.insert(new Product("pid_flash", "Mini Rose Bundle", "₹199", "Bouquet",
+            "Flash sale — 6 mini roses at an unbeatable price!",
+            "https://example.com/mini.jpg", "uid_s3", "Priya Singh"));
+
+        System.out.println("\n  ► Updated deals:");
+        heap.printDeals();
+
+        System.out.println("\n  📊 Time Complexity: insert O(log n), getMin O(1), extractMin O(log n)");
+    }
+
+    // ── Demo 10: Graph ─────────────────────────────────────────────────────
+
+    static void demoGraph() {
+        header("⑩ GRAPH + BFS/DFS — Category Relationships");
+        System.out.println("  ► Models how flower categories relate to each other.");
+        System.out.println("    BFS: shortest path between categories.");
+        System.out.println("    DFS: deep explore all related categories.\n");
+
+        graph.printAdjacency();
+
+        System.out.println();
+        List<String> bfsResult = graph.bfs("Bouquet");
+        System.out.println("  BFS visited order: " + bfsResult);
+
+        List<String> dfsResult = graph.dfs("Bouquet");
+        System.out.println("  DFS visited order: " + dfsResult);
+
+        System.out.println("\n  ► Practical use: 'You bought a Bouquet — explore: "
+            + graph.adj.get("Bouquet") + "'");
+        System.out.println("\n  📊 Time Complexity: BFS O(V+E), DFS O(V+E)");
+        System.out.println("     V=categories(nodes), E=relationships(edges)");
+    }
+
+    // ── Demo All ───────────────────────────────────────────────────────────
+
+    static void demoAll() {
+        System.out.println("\n  🌸 Running ALL DSA demos...");
+        demoDLL();         pressEnter();
+        demoStack();       pressEnter();
+        demoQueue();       pressEnter();
+        demoHashMap();     pressEnter();
+        demoBubbleSort();  pressEnter();
+        demoMergeSort();   pressEnter();
+        demoBinarySearch();pressEnter();
+        demoBST();         pressEnter();
+        demoMinHeap();     pressEnter();
+        demoGraph();
+        System.out.println("\n  ✅ All 10 DSA demos complete! 🌸");
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    static void banner() {
+        System.out.println("\n  ╔══════════════════════════════════════════════════════════════╗");
+        System.out.println("  ║       🌸  Flower. — Where Blooms Meet Emotions  🌸           ║");
+        System.out.println("  ║          DSA Console Demo  |  Java Edition                   ║");
+        System.out.println("  ╚══════════════════════════════════════════════════════════════╝");
+    }
+
+    static void header(String title) {
+        System.out.println("\n  " + "═".repeat(64));
+        System.out.println("  🌸  " + title);
+        System.out.println("  " + "═".repeat(64));
+    }
+
+    static String prompt(String label) {
+        System.out.print(label);
+        return sc.nextLine();
+    }
+
+    static void pressEnter() {
+        System.out.print("\n  ↵  Press Enter to continue...");
+        sc.nextLine();
+    }
+
+    static void sleep(int ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+    }
+}
